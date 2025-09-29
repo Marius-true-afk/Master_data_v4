@@ -1,0 +1,289 @@
+---
+title: "Tetthetskart"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+author: Marius Émil Lid
+format: 
+  html:
+    self-contained: true
+    code-tools: 
+      source: true
+---
+
+### I dette dokumentet har jeg kartlagt spredningen av sild fra 1935 - 2019 ved bruk av tetthetskart.
+
+Lesing, begrensning og rydding av csv filen
+
+```{r}
+#| label: Lagring av csv fil
+#| message: false
+#| warning: false
+
+library(readr)
+library(dplyr)
+library(sf)
+library(ggplot2)
+library(rnaturalearth)
+library(rnaturalearthdata)
+
+# Definer yttergrenser
+lon_min <- -21.9
+lon_max <- 49.9
+lat_min <- 56.9
+lat_max <- 77.1
+
+herring_data <- read_csv("HerringData.csv") |> 
+  select(lon, lat) |> 
+  mutate(
+    lat = as.numeric(lat),
+    lon = as.numeric(lon)
+  ) |> 
+  # filtrer ut ugyldige verdier
+  filter(
+    !is.na(lat) & !is.na(lon),
+    lon >= lon_min & lon <= lon_max,
+    lat >= lat_min & lat <= lat_max
+  )
+
+save(herring_data, file = "herring_data.rda")
+
+# Bruker Europa som bakgrunnskart
+europe <- ne_countries(continent = "Europe", returnclass = "sf")
+```
+
+#### Contour maps
+
+Det første kartet (map_unique_sampling_points) viser et tetthetskart for spredningen av de unike datapunktene. Koordinatene for plottet er valgte skjønnsmessig for å vise hele spredningsmønsteret. Figuren viser at de fleste unike datapunktene er tatt utenfor Ålesund/Molde og Vestfjorden i Lofoten, med en spredning fra omtrent Egersund til omtrent øst for Kirkenes (Barentshavet). [Totale unike datapunkt: 5676]{.underline}
+
+```{r}
+#| label: Density of unique sampling points
+#| message: false
+#| warning: false
+
+herring_data_no_duplicates <- herring_data |> 
+  # Fjerner duplikater
+  distinct(lon, lat, .keep_all = TRUE) |> 
+  # konvertet til sf 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+# Henter ut data for plottingen
+herring_coords <- cbind(
+  st_coordinates(herring_data_no_duplicates),
+  as.data.frame(herring_data_no_duplicates)
+) |> #st_coordinates gir standard navn X og Y. Ønsker å beholde lon & lat
+  rename(lon = X, lat = Y)
+
+# Bruker Europa som bakgrunnskart
+europe <- ne_countries(continent = "Europe", returnclass = "sf")
+
+# Lager plottet
+map_unique_sampling_points <- ggplot() +
+  geom_sf(data = europe, fill = "antiquewhite", color = "gray60") +
+  geom_density_2d_filled(
+    data = herring_coords,
+    aes(x = lon, y = lat),
+    alpha = 0.7
+  ) +
+  coord_sf(xlim = c(lon_min, lon_max), ylim = c(lat_min, lat_max)) +
+  theme_minimal() +
+  labs(
+    title = "Herring Data",
+    subtitle = "Density of unique sampling points",
+    x = "Longitude",
+    y = "Latitude"
+  )
+
+map_unique_sampling_points
+```
+
+Dette kartet (map_catches_1935_2019) viser spredningen av individuelle sild fanget fra 1935 - 2019. I dette tidsrommet er majoriteten av sildene fanget i nord- og sør for Ålesund, samt. en økning i Vestfjorden. [Totalt fangst: 410 355 individer]{.underline}
+
+```{r}
+#| label: Density of Individual Herring catched from 1935 - 2019
+#| message: false
+#| warning: false
+
+herring_data <- herring_data |> 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+# Bruker Europa som bakgrunnskart
+europe <- ne_countries(continent = "Europe", returnclass = "sf")
+
+# Plotter kartet med punkt størrelse 2, farget blått med transparens på 0.7
+map_catches_1935_2019 <- ggplot() +
+  geom_sf(data = europe, fill = "antiquewhite", color = "gray60") +
+  geom_density_2d_filled(
+    data = st_coordinates(herring_data) |>  
+    as.data.frame(),
+    aes(X, Y),
+    alpha = 0.7
+  ) +
+   coord_sf(xlim = c(lon_min, lon_max), ylim = c(lat_min, lat_max)) +
+  theme_minimal() +
+   labs(
+    title = "Herring data",
+    subtitle = "Density of Individual Herring catched from 1935 - 2019",
+    x = "Longitude",
+    y = "Latitude",
+    fill = "Point Density"
+   )
+map_catches_1935_2019
+```
+
+Dette kartet (map_catches_1970_2019) viser spredningen av individuelle sild fanget fra 1970 - 2019. På lik måte som for kartet som viser fangst fra 1935 - 2019, så forekommer majoriteten av fangsten utenfor Ålesund. Det er derimot mindre fangst sør for Ålesund, og det virker som det er en trend nordover mot Vestfjoden. [Total fangst: 252 314 individer]{.underline}
+
+```{r}
+#| label: Density of Individual Herring catched from 1970 - 2019
+#| message: false
+#| warning: false
+
+herring_data <- herring_data |> 
+  filter(year >= 1970, year <= 2019) |> 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+# Omdanner geometry kolonne til df med lat/lon
+coord_df <- st_coordinates(herring_data) |> 
+  as.data.frame() |> 
+  rename(lon = X, lat = Y)
+
+# Plotter kartet med punkt størrelse 2, farget blått med transparens på 0.7
+map_catches_1970_2019 <- ggplot() +
+  geom_sf(data = europe, fill = "antiquewhite", color = "gray60") +
+  geom_density_2d_filled(
+    data = coord_df,  
+    aes(x = lon, y = lat),
+    alpha = 0.7
+  ) +
+   coord_sf(xlim = c(lon_min, lon_max), ylim = c(lat_min, lat_max)) +
+  theme_minimal() +
+   labs(
+    title = "Herring data",
+    subtitle = "Density of Individual Herring catched from 1970 - 2019",
+    x = "Longitude",
+    y = "Latitude",
+    fill = "Point Density"
+   )
+map_catches_1970_2019
+```
+
+Dette kartet (map_catches_2000_2019) viser spredningen av individuelle sild fanget fra 2000 - 2019. Ser på lik måte som for 1970 - 2019 kartet at trenden fortsetter nordover, men enda tydeligere. [Total fangst: 72 905 individer.]{.underline}
+
+```{r}
+#| label: Density of Individual Herring catched from 2000 - 2019
+#| message: false
+#| warning: false
+
+herring_data <- herring_data |> 
+  filter(year >= 2000, year <= 2019) |> 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+# Omdanner geometry kolonne til df med lat/lon
+coord_df <- st_coordinates(herring_data) |> 
+  as.data.frame() |> 
+  rename(lon = X, lat = Y)
+
+# Plotter kartet med punkt størrelse 2, farget blått med transparens på 0.7
+map_catches_2000_2019 <- ggplot() +
+  geom_sf(data = europe, fill = "antiquewhite", color = "gray60") +
+  geom_density_2d_filled(
+    data = coord_df, 
+    aes(x = lon, y = lat),
+    alpha = 0.7
+  ) +
+   coord_sf(xlim = c(lon_min, lon_max), ylim = c(lat_min, lat_max)) +
+  theme_minimal() +
+   labs(
+    title = "Herring data",
+    subtitle = "Density of Individual Herring catched from 2000 - 2019",
+    x = "Longitude",
+    y = "Latitude",
+    fill = "Point Density"
+   )
+map_catches_2000_2019
+```
+
+Kort oversikt over de ulike kartene laget ovenfor.
+
+```{r}
+#| label: Summary of maps
+#| message: false
+#| warning: false
+
+#install.packages("patchwork")
+library(patchwork)
+
+map_unique_sampling_points <- map_unique_sampling_points + labs(title = NULL, subtitle = "Unique coords")
+map_catches_1935_2019 <- map_catches_1935_2019 + labs(title = NULL, subtitle = "Catches 1935-2019")
+map_catches_1970_2019 <- map_catches_1970_2019 + labs(title = NULL, subtitle = "Catches 1970-2019")
+map_catches_2000_2019 <- map_catches_2000_2019 + labs(title = NULL, subtitle = "Catches 2000-2019")
+
+(map_unique_sampling_points | map_catches_1935_2019) +
+  plot_annotation(
+    title = "Herring Density Maps",
+    subtitle = "Density Maps displaying distrubution of Herring catches from 1935 - 2019 in different timescales",
+    tag_levels = 'A'
+  )
+
+(map_catches_1970_2019 | map_catches_2000_2019) +
+    plot_annotation(
+    title = "Herring Density Maps",
+    subtitle = "Density Maps displaying distrubution of Herring catches from 1935 - 2019 in different timescales",
+    tag_levels = '1'
+    )
+```
+
+\########################################################################
+
+Prøver å gå vekk ifra contour plot ved å bruke "binned counts" (ingen interpolasjon).
+
+```{r}
+#| label: Coordinates binned
+#| message: false
+#| warning: false
+
+herring_data <- herring_data |> 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+# Omdanner geometry kolonne til df med lat/lon
+coord_df <- st_coordinates(herring_data) |> 
+  as.data.frame() |> 
+  rename(lon = X, lat = Y)
+
+ggplot() +
+  geom_sf(data = europe, fill = "antiquewhite", color = "gray60") +
+  geom_bin2d(
+    data = coord_df,
+    aes(x = lon, y = lat),
+    binwidth = c(0.5, 0.5)  # 0.5° grid (~50 km)
+  ) +
+  scale_fill_viridis_c(trans = "log", na.value = "white") +
+  coord_sf(xlim = c(0, 37), ylim = c(55, 76)) +
+  theme_minimal() +
+  labs(title = "Herring data", subtitle = "Number of observations per grid cell")
+```
+
+```{r}
+#| label: Binned Density of Individual Herring catched from 1970 - 2019
+#| message: false
+#| warning: false
+
+herring_data <- herring_data |> 
+  filter(year >= 1970, year <= 2019) |> 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+# Omdanner geometry kolonne til df med lat/lon
+coord_df <- st_coordinates(herring_data) |> 
+  as.data.frame() |> 
+  rename(lon = X, lat = Y)
+
+ggplot() +
+  geom_sf(data = europe, fill = "antiquewhite", color = "gray60") +
+  geom_bin2d(
+    data = coord_df,
+    aes(x = lon, y = lat),
+    binwidth = c(0.5, 0.5)  # 0.5° grid (~50 km)
+  ) +
+  scale_fill_viridis_c(trans = "log", na.value = "white") +
+  coord_sf(xlim = c(0, 37), ylim = c(55, 76)) +
+  theme_minimal() +
+  labs(title = "Herring data", subtitle = "Number of observations per grid cell")
+```

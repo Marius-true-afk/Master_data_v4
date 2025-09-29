@@ -1,0 +1,109 @@
+---
+title: "Søylediagram"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+author: Marius Émil Lid
+format: 
+  html:
+    self-contained: true
+    code-tools: 
+      source: true
+---
+
+[**Standard søylediagram**]{.underline}
+
+Antall prøvetatt fisk per år (e. eks. søylediagram). Vurder log-skala på y-aksen hvis forskjellene mellom år går over flere størrelsesordener. 
+
+```{r}
+#| message: false
+#| warning: false
+
+#Used for help creating bar chart: https://www.storybench.org/create-barplot-r/
+library(dplyr)
+
+# Leser av CSV filen
+herring_bar_raw_data <- read.csv(file = "HerringData.csv")
+#names(Herring_bar_graph)
+
+#En tibble 6x2 som viser hvor mange datapunkter per år
+herring_bar_clean_data <- herring_bar_raw_data |> 
+  mutate(
+    year = as.numeric(year),
+    id = as.numeric(id)
+  ) |> 
+  select(id,year) |> 
+  group_by(year) |> 
+  summarise(total_fish_caught = n())
+
+# --------------------------- BAR GRAPH --------------------------- 
+#$ Extract or Replace Parts of an Object -- Operators acting on vectors, matrices, arrays and lists to extract or replace parts.
+
+#From max/min total_fish_caught command <- 16518 / 648 individual fish 
+
+samples <- herring_bar_clean_data$total_fish_caught
+year <- herring_bar_clean_data$year
+
+barplot(samples,                # height of the bar chart
+        names.arg = year,      # labels for the x-axis
+        ylim = c(500, 17000),
+        las = 2,                # labes of Axis Style
+        cex.names = 0.6,        # Expansion factor of labels
+        col = "steelblue",
+        main = "Number of Herring Data Points per Year",
+        xlab = "Year",
+        ylab = "Individual sampled fish each year")
+```
+
+[**Logaritmisk søylediagram**]{.underline}
+
+```{r}
+#| message: false
+#| warning: false
+
+#tried to implement fig.width into {r} without any apparent improvement
+#Problem: Years on the x-axis is unreadable. Pair close by years to show trend?
+
+library(dplyr)
+
+# Leser av CSV filen
+herring_bar_raw_data <- read.csv(file = "HerringData.csv")
+#names(Herring_bar_graph)
+
+#En tibble 6x2 som viser hvor mange datapunkter per år
+herring_bar_clean_data <- herring_bar_raw_data |> 
+  mutate(
+    year = as.numeric(year),
+    id = as.numeric(id)
+  ) |> 
+  select(id,year) |> 
+  group_by(year) |> 
+  summarise(total_fish_caught = n())
+
+# --------------------------- LOGARITHMIC BAR GRAPH ---------------------------
+library(ggplot2)
+
+ggplot(herring_bar_clean_data, aes(x = factor(year), y = total_fish_caught)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  scale_y_sqrt() +  # Tried scale_y_sqrt and scale_y_log10
+  labs(
+    title = "Number of Herring Data Points per Year",
+    x = "Year",
+    y = "total_fish_caughtuency (log scale)"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+
+library(dplyr)
+
+catch_1935_2019 <- herring_bar_clean_data |> 
+  filter(year >= 1935, year <= 2019) |> 
+  summarise(
+    total_catch = sum(total_fish_caught, na.rm = TRUE),
+    n_year = n()
+  )
+catch_1935_2019
+```
