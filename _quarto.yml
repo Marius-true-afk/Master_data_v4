@@ -1,0 +1,14 @@
+project:
+  type: website
+
+website:
+  title: "Mitt prosjekt"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Hjem
+
+format:
+  html:
+    theme: cosmo
+    toc: true
