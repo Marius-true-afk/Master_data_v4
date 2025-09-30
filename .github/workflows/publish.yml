@@ -20,26 +20,26 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      # 1. Hent repoet
       - uses: actions/checkout@v4
-      
-      # Sett opp Quarto
+
+      # 2. Installer Quarto
       - uses: quarto-dev/quarto-actions/setup@v2
 
-      # Sett opp R (viktig!)
+      # 3. Installer R
       - uses: r-lib/actions/setup-r@v2
 
-      # (Valgfritt) Installer R-pakker du trenger
-      - name: Install packages
+      # 4. Installer nødvendige R-pakker
+      - name: Install R packages
         run: |
-          Rscript -e 'install.packages(c("tidyverse", "knitr", "rmarkdown"))'
+          Rscript -e 'install.packages(c("ggplot2", "tidyverse", "dplyr", "maps", "stringr", "here", "sf", "rnaturalearth", "rnaturalearthdata", "ggspatial", "prettymapr"))'
 
-      # Bygg nettsiden
+      # 5. Render nettsiden
       - run: quarto render
 
-      # Last opp og publiser
+      # 6. Last opp og deploy til GitHub Pages
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
-
