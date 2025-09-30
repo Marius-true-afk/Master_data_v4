@@ -20,32 +20,34 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      # 1. Hent repoet
+      # 1. Check out repo
       - uses: actions/checkout@v4
 
-      # 2. Installer Quarto
+      # 2. Install Quarto
       - uses: quarto-dev/quarto-actions/setup@v2
 
-      # 3. Installer R
+      # 3. Install R
       - uses: r-lib/actions/setup-r@v2
 
-      # 4. Sett opp caching av R-pakker
-      - uses: actions/cache@v3
+      # 4. Install R packages (with system dependencies + caching)
+      - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-r-${{ hashFiles('**/DESCRIPTION') }}
-          restore-keys: |
-            ${{ runner.os }}-r-
+          packages: |
+            ggplot2
+            dplyr
+            maps
+            stringr
+            here
+            sf
+            rnaturalearth
+            rnaturalearthdata
+            ggspatial
+            prettymapr
 
-      # 5. Installer nødvendige R-pakker (kun hvis ikke i cache)
-      - name: Install R packages
-        run: |
-          Rscript -e 'install.packages(c("ggplot2", "tidyverse", "dplyr", "maps", "stringr", "here", "sf", "rnaturalearth", "rnaturalearthdata", "ggspatial", "prettymapr"))'
-
-      # 6. Render nettsiden
+      # 5. Render the site
       - run: quarto render
 
-      # 7. Last opp og deploy til GitHub Pages
+      # 6. Upload and deploy to GitHub Pages
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
