@@ -1,35 +1,22 @@
 ---
-title: "index"
-format: html
-editor: visual
+title: "Master_data_v4"
 ---
 
----
-title: "Master_data_v4 – Indeks"
-format:
-  html:
-    theme: default
-    css: styles.css   # hvis du ønsker å legge CSS i egen fil (frivillig)
----
-
-# Master_data_v4
-
-Klikk på en side for å åpne HTML-versjonen.\
-(Lenkene forutsetter at hver fil er gjengitt til `.html` i repo-roten.)
+Klikk på en side for å åpne HTML-versjonen.
 
 :::::::: grid
 ::: card
-[1109 databehandling](1109_data_behandling.html)\
+[1109_databehandling](1109_databehandling.html)\
 <small>Databehandling – HTML</small>
 :::
 
 ::: card
-[Begrensing av datasett](Begrensing_av_datasett.html)\
+[Begrensinger_av_datasett](Begrensinger_av_datasett.html)\
 <small>Prosjektside – HTML</small>
 :::
 
 ::: card
-[Biologiske variabler_v2](Biologiske_variabler_v2.html)\
+[Biologiske_variabler_v2](Biologiske_variabler_v2.html)\
 <small>Analyse – HTML</small>
 :::
 
@@ -43,10 +30,3 @@ Klikk på en side for å åpne HTML-versjonen.\
 <small>Kart – HTML</small>
 :::
 ::::::::
-
-------------------------------------------------------------------------
-
-**Tips:**\
-Dersom HTML-filene dine ligger i en undermappe (f.eks. `docs/`), legg til stien foran lenkene (f.eks. `docs/Tetthetskart.html`), eller flytt denne `index.qmd` til samme mappe.
-
-På GitHub Pages: slå på Pages i repoets *Settings → Pages* og sett *Source* til `main`-branch (root) eller `/docs` dersom du bruker den mappen.
