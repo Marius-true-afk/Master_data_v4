@@ -1,0 +1,30 @@
+name: Publish Quarto site
+
+on:
+  push:
+    branches: [ main ]   # Kjør workflow når du pusher til main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4         # Hent repoet ditt
+      - uses: quarto-dev/quarto-actions/setup@v2   # Installer Quarto
+      - run: quarto render                # Bygg HTML fra .qmd
+      - uses: actions/upload-pages-artifact@v3     # Last opp _site/-mappa
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4     # Publiser til GitHub Pages
