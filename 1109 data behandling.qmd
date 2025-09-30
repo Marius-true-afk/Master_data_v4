@@ -16,8 +16,9 @@ library(dplyr)
 library(maps)
 library(stringr)
 library(here)
+library(tidyverse)
 
-herring_data_raw <- read.csv(
+herring_data_raw <- read_csv(
   here("HerringData.csv")) #currently stored as chr
 
 herring_data <- herring_data_raw |> 
@@ -182,5 +183,10 @@ ggplot() +
     y = "Latitude",
     fill = "Point Density"
    )
+
+```
+
+```{r}
+read_lines(here("HerringData.csv"), n_max = 5)
 
 ```

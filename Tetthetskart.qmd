@@ -31,18 +31,14 @@ lon_max <- 49.9
 lat_min <- 56.9
 lat_max <- 77.1
 
-herring_data <- read_csv("HerringData.csv") |> 
-  select(lon, lat) |> 
-  mutate(
-    lat = as.numeric(lat),
-    lon = as.numeric(lon)
-  ) |> 
-  # filtrer ut ugyldige verdier
+herring_data <- read_csv("HerringData.csv") |>
+  mutate(across(everything(), as.numeric)
+  ) |>
   filter(
     !is.na(lat) & !is.na(lon),
     lon >= lon_min & lon <= lon_max,
     lat >= lat_min & lat <= lat_max
-  )
+  ) 
 
 save(herring_data, file = "herring_data.rda")
 
