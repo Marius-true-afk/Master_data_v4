@@ -6,12 +6,12 @@ Klikk på en side for å åpne HTML-versjonen.
 
 :::::::: grid
 ::: card
-[1109_databehandling](1109_databehandling.html)\
+[1109 databehandling](1109_data_behandling.html)\
 <small>Databehandling – HTML</small>
 :::
 
 ::: card
-[Begrensinger_av_datasett](Begrensinger_av_datasett.html)\
+[Begrensinger av datasett](Begrensninger_av_datasett.html)\
 <small>Prosjektside – HTML</small>
 :::
 
