@@ -30,9 +30,9 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Master_data_v4 – Indeks",
+    "title": "Master_data_v4",
     "section": "",
-    "text": "Master_data_v4\nKlikk på en side for å åpne HTML-versjonen.\n(Lenkene forutsetter at hver fil er gjengitt til .html i repo-roten.)\n\n\n1109 databehandling\nDatabehandling – HTML\n\n\nBegrensing av datasett\nProsjektside – HTML\n\n\nBiologiske variabler_v2\nAnalyse – HTML\n\n\nSøylediagram\nFigur – HTML\n\n\nTetthetskart\nKart – HTML\n\n\n\nTips:\nDersom HTML-filene dine ligger i en undermappe (f.eks. docs/), legg til stien foran lenkene (f.eks. docs/Tetthetskart.html), eller flytt denne index.qmd til samme mappe.\nPå GitHub Pages: slå på Pages i repoets Settings → Pages og sett Source til main-branch (root) eller /docs dersom du bruker den mappen."
+    "text": "Klikk på en side for å åpne HTML-versjonen.\n\n\n1109_databehandling\nDatabehandling – HTML\n\n\nBegrensinger_av_datasett\nProsjektside – HTML\n\n\nBiologiske_variabler_v2\nAnalyse – HTML\n\n\nSøylediagram\nFigur – HTML\n\n\nTetthetskart\nKart – HTML"
   },
   {
     "objectID": "Begrensninger_av_datasett.html",
