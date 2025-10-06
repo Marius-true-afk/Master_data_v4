@@ -3,7 +3,11 @@ title: "Draft_code"
 editor: visual
 ---
 
+Denne HTML filen består kun av kladde kode og potensielle fallgruver med skjevhet i valg av metode/datapunkter.
+
 ```{r}
+#| message: false
+#| warning: false
 library(readr)
 library(dplyr)
 library(sf)
@@ -38,6 +42,8 @@ ggplot() +
 Sjekker årene 1970 - 2019
 
 ```{r}
+#| message: false
+#| warning: false
 library(readr)
 library(dplyr)
 library(sf)
@@ -71,6 +77,8 @@ map_catches_binned_1970_2019
 ```
 
 ```{r}
+#| message: false
+#| warning: false
 library(readr)
 library(dplyr)
 library(sf)
@@ -101,4 +109,62 @@ map_catches_binned_2000_2019 <- ggplot() +
   labs(title = "Herring data 2000 - 2019", subtitle = "Number of observations per grid cell")
 
 map_catches_binned_2000_2019
+```
+
+\##########################################
+
+Mulige problemer med skjevet i datasettet mtp. hvor sampling size
+
+```{r}
+#| message: false
+#| warning: false
+#install.packages("DT")
+library(dplyr)
+library(tidyr)
+library(knitr)
+library(DT)
+
+herring_data <- readRDS("herring_data.rds")
+
+sex_year_wide <- herring_data |>
+  mutate(sex_chr = ifelse(is.na(sex), "NA", as.character(sex))) |> 
+  group_by(year, sex_chr) |>
+  summarise(n = n(), .groups = "drop") |>
+  tidyr::pivot_wider(
+    names_from = sex_chr,
+    values_from = n,
+    values_fill = 0
+  ) |>
+  mutate(Total = rowSums(across(-year)))
+
+# interaktiv tabell
+datatable(sex_year_wide)
+
+```
+
+Jeg må vurdere hvordan skjevheten i innsamlet datapunkter påvirker modellering
+
+```{r}
+#| message: false
+#| warning: false
+library(ggplot2)
+
+ggplot(sex_year_wide, aes(x = year, y = Total)) +
+  geom_line(color = "steelblue", linewidth = 1) +
+  geom_point(color = "steelblue") +
+  labs(
+    title = "Totalt antall datapunkter per år",
+    x = "År",
+    y = "Totalt antall datapunkter"
+  ) +
+  scale_x_continuous(
+    breaks = seq(min(sex_year_wide$year), max(sex_year_wide$year), by = 5)  # hvert 5. år
+  ) +
+  scale_y_continuous(
+    breaks = scales::pretty_breaks(n = 10)  # 10 ticks på y-aksen
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
 ```

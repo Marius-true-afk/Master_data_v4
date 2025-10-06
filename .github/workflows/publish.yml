@@ -36,6 +36,7 @@ jobs:
             any::maps
             any::ggspatial
             any::prettymapr
+            any::DT
 
       # 5. Render hele nettstedet (bygger til ./_site)
       - name: Render site
