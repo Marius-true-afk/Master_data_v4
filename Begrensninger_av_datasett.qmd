@@ -231,7 +231,7 @@ ggplot() +
   theme_minimal() +
   labs(
     title = "Spatial location of Herring datapoints",
-    subtitle = "Red = Land, Blue = Ocean",
+    subtitle = "Red = datapoints, dashed box = unwanted datapoints",
     x = "Longitude",
     y = "Latitude"
   )
