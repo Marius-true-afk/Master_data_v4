@@ -29,4 +29,9 @@ Klikk på en side for å åpne HTML-versjonen.
 [Tetthetskart](Tetthetskart.html)\
 <small>Kart – HTML</small>
 :::
+
+::: card
+[Draft_code](Draft_code.html)\
+<small>Figur – HTML</small>
+:::
 ::::::::
