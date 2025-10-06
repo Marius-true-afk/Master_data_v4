@@ -1,0 +1,104 @@
+---
+title: "Draft_code"
+editor: visual
+---
+
+```{r}
+library(readr)
+library(dplyr)
+library(sf)
+library(rnaturalearth)
+library(ggplot2)
+
+load("herring_data_alt.rda")
+
+herring_data <- herring_data |> 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+# Omdanner geometry kolonne til df med lat/lon
+coord_df <- st_coordinates(herring_data) |> 
+  as.data.frame() |> 
+  rename(lon = X, lat = Y)
+
+# plot
+europe <- ne_countries(continent = "Europe", returnclass = "sf")
+ggplot() +
+  geom_sf(data = europe, fill = "antiquewhite", color = "gray60") +
+  geom_bin2d(
+    data = coord_df,
+    aes(x = lon, y = lat),
+    binwidth = c(0.5, 0.5)  # 0.5° grid (~50 km)
+  ) +
+  scale_fill_viridis_c(trans = "log", na.value = "white") +
+  coord_sf(xlim = c(0, 37), ylim = c(55, 76)) +
+  theme_minimal() +
+  labs(title = "Herring data 1935 - 2019", subtitle = "Number of observations per grid cell")
+```
+
+Sjekker årene 1970 - 2019
+
+```{r}
+library(readr)
+library(dplyr)
+library(sf)
+library(rnaturalearth)
+library(ggplot2)
+
+load("herring_data_alt.rda")
+
+herring_data <- herring_data |> 
+  filter(year >= 1970, year <= 2019) |> 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+# Omdanner geometry kolonne til df med lat/lon
+coord_df <- st_coordinates(herring_data) |> 
+  as.data.frame() |> 
+  rename(lon = X, lat = Y)
+
+map_catches_binned_1970_2019 <- ggplot() +
+  geom_sf(data = europe, fill = "antiquewhite", color = "gray60") +
+  geom_bin2d(
+    data = coord_df,
+    aes(x = lon, y = lat),
+    binwidth = c(0.5, 0.5)  # 0.5° grid (~50 km)
+  ) +
+  scale_fill_viridis_c(trans = "log", na.value = "white") +
+  coord_sf(xlim = c(0, 37), ylim = c(55, 76)) +
+  theme_minimal() +
+  labs(title = "Herring data 1970 - 2019", subtitle = "Number of observations per grid cell")
+
+map_catches_binned_1970_2019
+```
+
+```{r}
+library(readr)
+library(dplyr)
+library(sf)
+library(rnaturalearth)
+library(ggplot2)
+
+load("herring_data_alt.rda")
+
+herring_data <- herring_data |> 
+  filter(year >= 2000, year <= 2019) |> 
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+# Omdanner geometry kolonne til df med lat/lon
+coord_df <- st_coordinates(herring_data) |> 
+  as.data.frame() |> 
+  rename(lon = X, lat = Y)
+
+map_catches_binned_2000_2019 <- ggplot() +
+  geom_sf(data = europe, fill = "antiquewhite", color = "gray60") +
+  geom_bin2d(
+    data = coord_df,
+    aes(x = lon, y = lat),
+    binwidth = c(0.5, 0.5)  # 0.5° grid (~50 km)
+  ) +
+  scale_fill_viridis_c(trans = "log", na.value = "white") +
+  coord_sf(xlim = c(0, 37), ylim = c(55, 76)) +
+  theme_minimal() +
+  labs(title = "Herring data 2000 - 2019", subtitle = "Number of observations per grid cell")
+
+map_catches_binned_2000_2019
+```
